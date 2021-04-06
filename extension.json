@@ -1,0 +1,9 @@
+{
+  "identifier": "org.chang.solidity",
+  "name": "Solidity",
+  "organization": "Chang Yang Jiao",
+  "description": "Solidity language support for Nova",
+  "version": "1.0",
+  "categories": ["languages"],
+  "bugs": "https://github.com/jiaochangyang/nova-solidity/issues"
+}
