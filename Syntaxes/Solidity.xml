@@ -5,341 +5,41 @@
         <type>compiled</type>
         <preferred-file-extension>sol</preferred-file-extension>
     </meta>
-    
+
     <detectors>
         <extension priority="1.0">sol</extension>
     </detectors>
-    
+
     <indentation>
         <increase>
-            <expression>^\s*&lt;(([^!/?]|%)(?!.+?([/%]&gt;|&lt;/.+?&gt;))|[%!]--\s*$)</expression>
+            <expression>(\{[^}\"']*$)|(\[[^\]\"']*$)|(\([^)\"']*$)</expression>
         </increase>
         <decrease>
-            <expression>^\s*(&lt;/[^&gt;]+&gt;|--&gt;|--%&gt;)</expression>
+            <expression>^\s*(\s*/\*.*\*/\s*)*[\}\]\)\\]</expression>
         </decrease>
     </indentation>
-      
-    <brackets>
-        <pair open="&lt;" close="&gt;" />
-    </brackets>
 
-    <surrounding-pairs>
-        <pair open="&lt;" close="&gt;" skip="string,comment"/>
-        <pair open="{" close="}" skip="string,comment"/>
-        <pair open="[" close="]" skip="string,comment"/>
-        <pair open="(" close=")" skip="string,comment"/>
-        <pair open="&apos;" close="&apos;" skip="string,comment"/>
-        <pair open="&quot;" close="&quot;" skip="string,comment"/>
-        <pair open="`" close="`" />
-    </surrounding-pairs>
-    
-    <scopes>
-        <!-- Solidity Reserved Keywords -->
-        <include syntax="self" collection="keywords" />
-        <!-- Solidity Identifiers and Primitive Types -->
-        <include syntax="self" collection="identifiers" />
-        <!-- Solidity Primitive Values -->
-        <include syntax="self" collection="values" />
-        <!-- Solidity Definitions -->
-        <include syntax="self" collection="definitions" />
-        <!-- Solidity Comments -->
-        <include syntax="self" collection="comments" />
-        <!-- Solidity Code Blocks -->
-        <include syntax="self" collection="blocks" />
-    </scopes>
-    
-    <collections>
-        <!-- Comments -->
-        <collection name="comments">
-            <scope name="solidity.comment.single" spell-check="true">
-                <expression>//(?:/|!)?(.*)$</expression>
-                <capture number="1" name="solidity.comment.content" />
-            </scope>
-            <scope name="solidity.comment.block" spell-check="true">
-                <symbol type="comment">
-                    <context behavior="subtree" />
-                </symbol>
-                <starts-with>
-                    <expression>/\*</expression>
-                </starts-with>
-                <ends-with>
-                    <expression>\*/</expression>
-                </ends-with>
-            </scope>
-        </collection>
-        
-        <!-- Definitions -->
-        <collection name="definitions">
-            <scope name="solidity.definition.struct">
-                <symbol type="struct">
-                    <context behavior="subtree" />
-                </symbol>
-                <starts-with>
-                    <expression>\b(struct)\s+([a-zA-Z0-9_]+)</expression>
-                    <capture number="1" name="solidity.core.keyword" />
-                    <capture number="2" name="solidity.identifier.type.struct.name" />
-                </starts-with>
-                <ends-with>
-                    <expression>(?&lt;=\}|;)</expression>
-                </ends-with>
-                <subscopes>
-                    <include syntax="self" collection="definitions" />
-                    <include syntax="self" collection="core-primitive" />
-                    <include syntax="self" collection="blocks" />
-                </subscopes>
-            </scope>
-            <scope name="solidity.definition.enum">
-                <symbol type="enum">
-                    <context behavior="subtree" />
-                </symbol>
-                <starts-with>
-                    <expression>\b(enum)\s+([a-zA-Z0-9_]+)</expression>
-                    <capture number="1" name="solidity.core.keyword" />
-                    <capture number="2" name="solidity.identifier.type.enum.name" />
-                </starts-with>
-                <ends-with>
-                    <expression>(?&lt;=\}|;)</expression>
-                </ends-with>
-                <subscopes>
-                    <include syntax="self" collection="definitions" />
-                    <include syntax="self" collection="core-type" />
-                    <include syntax="self" collection="blocks" />
-                </subscopes>
-            </scope>
-            <scope name="solidity.definition.modifier">
-                <symbol type="modifier">
-                    <context behavior="subtree" />
-                </symbol>
-                <starts-with>
-                    <expression>\b(modifier)\s+([a-zA-Z0-9_]+)</expression>
-                    <capture number="1" name="solidity.core.keyword" />
-                    <capture number="2" name="solidity.identifier.method.name" />
-                </starts-with>
-                <ends-with>
-                    <expression>(?&lt;=\}|;)</expression>
-                </ends-with>
-                <subscopes>
-                    <include syntax="self" collection="definitions" />
-                    <include syntax="self" collection="core-type" />
-                    <include syntax="self" collection="blocks" />
-                </subscopes>
-            </scope>
-        </collection>
+    <comments>
+        <single>
+            <expression>//</expression>
+        </single>
+        <multiline>
+            <starts-with>
+                <expression>/*</expression>
+            </starts-with>
+            <ends-with>
+                <expression>*/</expression>
+            </ends-with>
+        </multiline>
+    </comments>
 
-        <!-- Values -->
-        <collection name="values">
-            <include syntax="self" collection="core-value" />
-            <include syntax="self" collection="string" />
-        </collection>
+    <injection>
+        <expression>^(solidity)$</expression>
+    </injection>
 
-        <!-- Keywords -->
-        <collection name="keywords">
-            <include syntax="self" collection="core-reserved" />
-            <include syntax="self" collection="core-visibility" />
-            <include syntax="self" collection="core-scope" />
-        </collection>
-
-        <!-- Identifiers -->
-        <collection name="identifiers">
-            <include syntax="self" collection="core-primitive" />
-            <include syntax="self" collection="core-function" />
-            <scope name="solidity.identifier.method">
-                <expression>(\.)([A-Za-zÀ-ÖØ-öø-ÿ_][A-Za-zÀ-ÖØ-öø-ÿ0-9_]*)(?=\()\b</expression>
-                <capture number="1" name="solidity.punctuation.delimiter.period" />
-                <capture number="2" name="solidity.identifier.function" />
-            </scope>
-            <scope name="solidity.identifier.function">
-                <expression>\b(?&lt;!\.)([A-Za-zÀ-ÖØ-öø-ÿ_][A-Za-zÀ-ÖØ-öø-ÿ0-9_]*)(?=\()\b</expression>
-            </scope>
-        </collection>
-
-        <!-- Code Blocks -->
-        <collection name="blocks">
-            <scope name="solidity.block">
-                <symbol type="block">
-                    <context behavior="subtree" />
-                </symbol>
-                <starts-with>
-                    <expression>\{</expression>
-                    <capture number="0" name="solidity.block.bracket" />
-                </starts-with>
-                <ends-with>
-                    <expression>\}</expression>
-                    <capture number="0" name="solidity.block.bracket" />
-                </ends-with>
-                <subscopes>
-                    <include syntax="self" />
-                </subscopes>
-            </scope>
-        </collection>
-
-        <!-- String -->
-        <collection name="string">
-            <scope name="solidity.value.string.double-quoted">
-                <starts-with>
-                    <expression>&quot;</expression>
-                    <capture number="0" name="solidity.value.string.double-quoted.delimiter" />
-                </starts-with>
-                <ends-with>
-                    <expression>&quot;|(?:(?&lt;!\\)$)</expression>
-                    <capture number="0" name="solidity.value.string.double-quoted.delimiter" />
-                </ends-with>
-                <subscopes>
-                    <scope name="solidity.value.string.double-quoted.escape">
-                        <expression>\\(?:\\|&quot;|n|r|t|b|f)</expression>
-                    </scope>
-                </subscopes>
-            </scope>
-            <scope name="solidity.value.string.single-quoted">
-                <starts-with>
-                    <expression>&apos;</expression>
-                    <capture number="0" name="solidity.value.string.single-quoted.delimiter" />
-                </starts-with>
-                <ends-with>
-                    <expression>&apos;|(?:(?&lt;!\\)$)</expression>
-                    <capture number="0" name="solidity.value.string.single-quoted.delimiter" />
-                </ends-with>
-                <subscopes>
-                    <scope name="solidity.value.string.single-quoted.escape">
-                        <expression>\\(?:\\|&apos;|n|r|t|b|f)</expression>
-                    </scope>
-                </subscopes>
-            </scope>
-        </collection>
-
-        <!-- Solidity Core-->
-        <collection name="core-reserved">
-            <scope name="solidity.core.keyword.reserved">
-                <symbol type="reserved" />
-                <strings>
-                    <string>pragma</string>
-                    <string>solidity</string>
-                    <string>import</string>
-                    <string>interface</string>
-                    <string>abstract</string>
-                    <string>contract</string>
-                    <string>library</string>
-                    <string>using</string>
-                    <string>for</string>
-                    <string>is</string>
-                    <string>modifier</string>
-                    <string>function</string>
-                    <string>event</string>
-                    <string>emit</string>
-                    <string>require</string>
-                    <string>revert</string>
-                    <string>new</string>
-                    <string>return</string>
-                    <string>returns</string>
-                    <string>memory</string>
-                    <string>storage</string>
-                    <string>calldata</string>
-                    <string>msg</string>
-                    <string>sender</string>
-                </strings>
-            </scope>
-        </collection>
-        
-        <collection name="core-visibility">
-            <scope name="solidity.core.keyword.visibility">
-                <symbol type="visibility" />
-                <strings>
-                    <string>public</string>
-                    <string>private</string>
-                    <string>external</string>
-                    <string>internal</string>
-                    <string>pure</string>
-                    <string>view</string>
-                    <string>payable</string>
-                    <string>constant</string>
-                    <string>immutable</string>
-                    <string>event</string>
-                    <string>anonymous</string>
-                    <string>indexed</string>
-                    <string>virtual</string>
-                    <string>override</string>
-                </strings>
-            </scope>
-        </collection>
-        
-        <collection name="core-scope">
-            <scope name="solidity.core.keyword.scope">
-                <symbol type="scope" />
-                <strings>
-                    <string>self</string>
-                    <string>this</string>
-                    <string>super</string>
-                </strings>
-            </scope>
-        </collection>
-        
-        <collection name="core-primitive">
-            <scope name="solidity.core.identifier.type.primitive">
-                <symbol type="primitive" />
-                <strings>
-                    <string>bool</string>
-                    <string>string</string>
-                    <string>uint</string>
-                    <string>uint8</string>
-                    <string>uint16</string>
-                    <string>uint32</string>
-                    <string>uint40</string>
-                    <string>uint64</string>
-                    <string>uint128</string>
-                    <string>uint256</string>
-                    <string>int</string>
-                    <string>int8</string>
-                    <string>int16</string>
-                    <string>int32</string>
-                    <string>int40</string>
-                    <string>int64</string>
-                    <string>int128</string>
-                    <string>int256</string>
-                    <string>int8</string>
-                    <string>int16</string>
-                    <string>int32</string>
-                    <string>int40</string>
-                    <string>int64</string>
-                    <string>int128</string>
-                    <string>int256</string>
-                    <string>bytes4</string>
-                    <string>bytes8</string>
-                    <string>bytes16</string>
-                    <string>bytes32</string>
-                    <string>address</string>
-                    <string>string</string>
-                    <string>mapping</string>
-                    <string>bytes</string>
-                </strings>
-            </scope>
-        </collection>
-        
-        <collection name="core-function">
-            <scope name="solidity.core.identifier.function">
-                <strings prefix="(?&lt;!\.)" suffix="(?=\()">
-                    <string>address</string>
-                    <string>constructor</string>
-                    <string>fallback</string>
-                </strings>
-            </scope>
-        </collection>
-        
-        <collection name="core-value">
-            <scope name="solidity.core.value.boolean">
-                <strings>
-                    <string>true</string>
-                    <string>false</string>
-                </strings>
-            </scope>
-            <scope name="solidity.core.value.number.hex">
-                <expression>\b0(x|X)[a-fA-F0-9]+\b</expression>
-            </scope>
-            <scope name="solidity.core.value.number.integer">
-                <expression>\b-?[0-9]+\b</expression>
-            </scope>
-            <scope name="solidity.core.value.number">
-                <expression>\b\-?(?:\d+(?:\.\d*)?|(?:\.\d+))\b</expression>
-            </scope>
-        </collection>
-    </collections>
+    <tree-sitter language="solidity">
+        <highlights />
+        <folds />
+        <symbols />
+    </tree-sitter>
 </syntax>
